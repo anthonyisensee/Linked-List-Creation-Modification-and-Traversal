@@ -197,6 +197,8 @@ public class LinkedQueue<Item> implements Iterable<Item> {
             q.enqueue(i);
         }
 
+
+
         // perform assigned activities
         StdOut.println(q.toString());   // display queue using stack
         q.reverseByStack();             // reverse queue
@@ -208,14 +210,16 @@ public class LinkedQueue<Item> implements Iterable<Item> {
         q.reverseByLinks();             // reverse queue using links
         StdOut.println(q.toString());   // display queue
 
-        /* Additional Testing */
+
+
+        /* Additional Testing
 
         // create queues for rigorous testing
         LinkedQueue<String> test1 = new LinkedQueue<String>();
         LinkedQueue<String> test2 = new LinkedQueue<String>();
 
         // add items to test1 queue
-        String[] testItems1 = { "a", "a", "a", "a", "a", "a" };
+        String[] testItems1 = { "1", "2", "3", "4", "5", "6", "7", "8" };
         for (String i : testItems1) {
             test1.enqueue(i);
         }
@@ -226,23 +230,42 @@ public class LinkedQueue<Item> implements Iterable<Item> {
             test2.enqueue(i);
         }
 
-        // output results to preview proper behavior
-        StdOut.println("");   // first sample
+        // output results to preview proper behavior //
 
+        // test 1
+        StdOut.println("");   // whitespace
 
-        // first preview
+        // before modification preview
         StdOut.println(test1.toString());   // first sample
         StdOut.println("First: " + test1.first.item.toString());    // make sure first is set correctly
         StdOut.println("Last: " + test1.last.item.toString());      // make sure last is set correctly
 
         // modification
-        test1.remove("a");  // testing removal
+        test1.remove("8");  // testing removal
+        test1.reverseByStack();
 
-        // second preview
+        // after modification preview
         StdOut.println(test1.toString());   // second sample
-        StdOut.println("First: " + test1.first.item.toString());    // make sure first is set correctly
-        StdOut.println("Last: " + test1.last.item.toString());      // make sure last is set correctly
+        if (test1.first != null) { StdOut.println("First: " + test1.first.item.toString()); } else { StdOut.println("First: null"); }  // make sure first is set correctly
+        if (test1.last != null) { StdOut.println("Last: " + test1.last.item.toString()); } else { StdOut.println("Last: null"); }      // make sure last is set correctly
 
+        // test 2
+        StdOut.println("");   // whitespace
+
+        // before modification preview
+        StdOut.println(test2.toString());   // first sample
+        StdOut.println("First: " + test2.first.item.toString());    // make sure first is set correctly
+        StdOut.println("Last: " + test2.last.item.toString());      // make sure last is set correctly
+
+        // modification
+        test2.remove("a");  // testing removal
+
+        // after modification preview
+        StdOut.println(test2.toString());   // second sample
+        if (test2.first != null) { StdOut.println("First: " + test2.first.item.toString()); } else { StdOut.println("First: null"); }  // make sure first is set correctly
+        if (test2.last != null) { StdOut.println("Last: " + test2.last.item.toString()); } else { StdOut.println("Last: null"); }      // make sure last is set correctly
+
+        */
 
     }
 
@@ -294,50 +317,73 @@ public class LinkedQueue<Item> implements Iterable<Item> {
     }
 
     /**
-     * This method scans the queue for occurrences of item and removes
-     * them from the queue. It returns the number of items deleted from
-     * the queue.
+     * This method scans the queue for occurrences of the given item and removes
+     * them from the queue. It returns the number of items deleted from the queue.
      */
-    int remove(Item item) {
+    int remove(Item remove) {
 
         int itemsDeleted = 0;
-
         Node previous = null;
         Node current = first;
 
-        // null list case, there are not items in list
+        // null list case, there are no items in list
         if(isEmpty()) { return itemsDeleted; }
 
-        // front of list case, repeats for as many items as there are at the beginning of the list
-        while(first.item == item) {
+        // front of list case, there are multiple items to be deleted at the front of the list
+        while(first.item == remove) {
+
+            // whole list deletion case
+            if(first == last) {
+                last = null;
+                first = null;
+                return ++itemsDeleted;
+            }
+
+            // advance our head (effectively deleting a node from master list)
             first = first.next;
+            // add 1 to our number of items deleted
             itemsDeleted++;
         }
 
-        // beginning the search of the rest of the list
-        // initiate values for previous and current
-        previous = first;
-        current = first.next;
+        // set our values for the rest of cases
+        // note that current still refers to our head at this point
+        previous = current;
+        current = current.next;
 
         // middle/end of list case
         while(current != null)  {
 
             // if item is detected
-            if(current.item == item) {
+            if(current.item == remove && current.next != null) {
+
+                // splice linked list around detected item to remove and set other values to correct places
                 previous.next = current.next;   // splice linked list around detected item
+                current = current.next;         // move current forward (to the node we just pointed the previous node towards)
                 itemsDeleted++;
+
+            }
+            // end of list case (current.next == null is redundant, but shown for clarity)
+            else if (current.item == remove && current.next == null){
+
+                // splice linked list around detected item to remove and set other values to correct places
+                previous.next = null;   // unlink the final element from the previous element
+                // set last to the previous item in the structure
+                last = previous;
+                return ++itemsDeleted;
+
             }
             else {
+
                 // only iterates previous when an item has not been detected, or previous will catch up with current
                 previous = previous.next;   // note that this must advance from itself, not current, or previous will become the old node
+                current = current.next;     // the current node is advanced by one for our next loop
+
             }
-            // iterate one further
-            current = current.next;     // the current node is advanced by one for our next loop
+
         }
 
         // returns number of items deleted
         return itemsDeleted;
+
     }
-
-
 }
